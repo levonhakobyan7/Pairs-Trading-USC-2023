@@ -1,12 +1,11 @@
 from polygon import RESTClient
-from polygon.rest import models
 from data_load.config import POLYGON_API_KEY, MAX_THREAD_NUM, STOCK_NUM, PKL_FILE_NAME
 import yfinance as yf
-from pprint import pprint
 import time
 from multiprocessing.pool import ThreadPool as Pool
 import pickle
 import logging
+from datetime import datetime
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 class StockApi:
@@ -67,7 +66,7 @@ class StockApi:
     def get_candles(self, symbols:list, store=True):
         stock_list = [item['symbol'] for item in symbols]
         stocks = ' '.join(stock_list)
-        data = yf.download(stocks, start="1990-01-01", end="2023-04-30")
+        data = yf.download(stocks, start="1990-01-01", end=datetime.today().strftime('%Y-%m-%d'))
         if store:
             self.store(data)
         return data

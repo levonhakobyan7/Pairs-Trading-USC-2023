@@ -4,7 +4,8 @@ from data_load.config import PKL_FILE_NAME
 import pickle
 from data_load.request_api import StockApi
 
-def get_data(stocks:list, headers:list):
+
+def get_data(stocks: list, headers: list):
     with open(PKL_FILE_NAME, 'rb') as f:
         loaded_data = pickle.load(f)
 
@@ -25,10 +26,9 @@ def get_data(stocks:list, headers:list):
     v_stocks = api.get_tickers_detail(re_request_stocks)
     data = api.get_candles(v_stocks, store=False)
     v_jointed_data = data[(headers)]
-    # print(jointed_data)
-    # print(v_jointed_data)
     concat_data = jointed_data.join(v_jointed_data)
     return concat_data
+
 
 if __name__ == "__main__":
     stock_list = ["AAPL", 'META', "SPY", "QQQ"]
