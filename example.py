@@ -5,5 +5,5 @@ if __name__ == "__main__":
     stock_list = ["AAPL", 'META', "SPY", "QQQ"]
     # choice of headers from ['Adj Close', 'Close', 'Open', 'Volume', 'Low', 'High']
     headers = ['Adj Close', 'Close']
-    date = get_data(stock_list, headers)
-    print(date)
+    stock_data = get_data(stock_list, headers)
+    print(stock_data)
