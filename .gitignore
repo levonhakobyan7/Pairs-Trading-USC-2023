@@ -23,6 +23,7 @@ log
 datasets
 evaluator_data
 .idea/
+.DS_Store
 
 data
 /data
