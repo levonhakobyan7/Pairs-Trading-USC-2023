@@ -24,6 +24,7 @@ datasets
 evaluator_data
 .idea/
 .DS_Store
+/.DS_Store
 
 data
 /data
