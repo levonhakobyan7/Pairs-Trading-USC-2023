@@ -4,7 +4,6 @@ from request_api import StockApi
 import pickle
 
 
-
 def get_data(stocks: list, headers: list):
     with open(PKL_FILE_NAME, 'rb') as f:
         loaded_data = pickle.load(f)
@@ -27,6 +26,7 @@ def get_data(stocks: list, headers: list):
     data = api.get_candles(v_stocks, store=False)
     v_jointed_data = data[(headers)]
     concat_data = jointed_data.join(v_jointed_data)
+    f.close()
     return concat_data
 
 
