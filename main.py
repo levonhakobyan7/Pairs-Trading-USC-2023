@@ -1,6 +1,6 @@
 import os
-from data_load.config import STOCK_NUM
-from data_load.request_api import StockApi
+from config import STOCK_NUM
+from request_api import StockApi
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 

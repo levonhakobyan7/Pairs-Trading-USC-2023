@@ -1,5 +1,5 @@
 from polygon import RESTClient
-from data_load.config import POLYGON_API_KEY, MAX_THREAD_NUM, STOCK_NUM, PKL_FILE_NAME
+from config import POLYGON_API_KEY, MAX_THREAD_NUM, STOCK_NUM, PKL_FILE_NAME
 import yfinance as yf
 import time
 from multiprocessing.pool import ThreadPool as Pool

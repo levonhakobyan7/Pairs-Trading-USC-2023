@@ -1,8 +1,8 @@
 import pandas as pd
-
-from data_load.config import PKL_FILE_NAME
+from config import PKL_FILE_NAME
+from request_api import StockApi
 import pickle
-from data_load.request_api import StockApi
+
 
 
 def get_data(stocks: list, headers: list):
