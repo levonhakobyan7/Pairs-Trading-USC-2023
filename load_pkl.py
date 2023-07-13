@@ -22,7 +22,10 @@ def get_data(stocks: list, headers: list):
     # re-request
     # check valid
     api = StockApi()
-    v_stocks = api.get_tickers_detail(re_request_stocks)
+    # v_stocks = api.get_tickers_detail(re_request_stocks)
+    v_stocks = []
+    for stock in re_request_stocks:
+        v_stocks.append({'symbol': stock, 'cap':-1})
     data = api.get_candles(v_stocks, store=False)
     v_jointed_data = data[(headers)]
     concat_data = jointed_data.join(v_jointed_data)
