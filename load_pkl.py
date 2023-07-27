@@ -38,3 +38,4 @@ if __name__ == "__main__":
     headers = ['Adj Close', 'Close']
     date = get_data(stock_list, headers)
     print(date)
+

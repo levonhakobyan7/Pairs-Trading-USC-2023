@@ -31,14 +31,7 @@ stock_data = get_data(stock_list, headers)
 stock_data = stock_data["Close"]
 
 
-# print(pair_check(y=pepsi_data, x= coke_data))
-
-# Wierd phenomenon - for data [6000:0] when y= JPM and x= GS the p-value is 0.5081006986065552
-# when I change the palaces then p-value also changes, it becomes 0.4523076847220332
-
-
-#In order to check all possible pairs from the stock_list execute the following
-
+# In order to check all possible pairs from the stock_list execute the following
 
 # for pair in stock_pairs:
 #     y_ticker = pair[0]

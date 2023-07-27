@@ -101,3 +101,4 @@ def pair_check_log(y: pd.Series,x: pd.Series):
         elif log_x_stationarity == True:
             print(f"the log close price for {x.name} stock is stationary")
         return False
+
