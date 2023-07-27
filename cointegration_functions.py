@@ -83,13 +83,9 @@ def pair_check_log(y: pd.Series,x: pd.Series):
         residual_stationarity = check_for_stationarity(residual)
         if residual_stationarity == True:
             print(f"The pair {y.name} and {x.name} are co-integrated")
-            return True
-            # TODO 1: return coefficient of regression and the bias.
-
-
-            # return {"is_pair": True, "coefficients_of_regression": regression_results.params,
-            # "residuals": residual}
-            # Do I need to return anything else?
+            result = {"is_pair": True, "coefficients_of_regression": regression_results['coeffs'],
+            "residuals": residual}
+            return result
 
         else:
             print(f"The pair {y.name} and {x.name} are not co-integrated and the p-value is {adfuller(residual)[1]}")
