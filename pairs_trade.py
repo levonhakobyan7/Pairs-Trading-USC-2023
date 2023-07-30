@@ -3,13 +3,13 @@ from load_pkl import get_data
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from cointegration_functions import pair_check, pairs_list, pair_check_log, check_for_stationarity
+from cointegration_functions import pair_check, pairs_list, pair_check_log, check_for_stationarity, PairsTrade
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import r2_score
 from scipy.stats import zscore
 from statsmodels.graphics.tsaplots import plot_pacf
 
-DATA_THRESHOLD = 7000
+# DATA_THRESHOLD = 7000
 
 #TODOS
 
@@ -60,13 +60,14 @@ stock_data = stock_data["Close"]
 # ------------------------- FROM THIS POINT ON EVEYRTHING IS JUST AN EXPERIMENT. CAN CONTAIN BUGS AND NON-SENSE
 
 #BITCOIN & GS
-BTC_training_data = stock_data["BTC-USD"][DATA_THRESHOLD:8200]
-GS_training_data = stock_data["GS"][DATA_THRESHOLD:8200]
-BTC_test_data = stock_data["BTC-USD"][8201:]
-GS_test_data = stock_data["GS"][8201:]
+# BTC_training_data = stock_data["BTC-USD"][DATA_THRESHOLD:8200]
+# GS_training_data = stock_data["GS"][DATA_THRESHOLD:8200]
+# BTC_test_data = stock_data["BTC-USD"][8201:]
+# GS_test_data = stock_data["GS"][8201:]
 
-results = pair_check_log(y=BTC_training_data, x=GS_training_data)
-train_spread = results["residuals"]
+# results = pair_check_log(y=BTC_training_data, x=GS_training_data)
+# print(results)
+# train_spread = results["residuals"]
 # residuals_mean = np.ones(len(spread)) * np.mean(spread)
 # plt.plot(np.array(spread))
 # plt.plot(residuals_mean)
@@ -78,8 +79,8 @@ train_spread = results["residuals"]
 # plt.show()
 
 # Fitting AR(1) to the data
-ar_fit = ARIMA(train_spread, order = (1,0,0)).fit()
-
+# ar_fit = ARIMA(train_spread, order = (1,0,0)).fit()
+#
 # print(ar_fit.summary())
 
 # ar.L1  - 0.9861
@@ -111,4 +112,81 @@ ar_fit = ARIMA(train_spread, order = (1,0,0)).fit()
 
 
 # plot_pacf(train_spread,lags=60)
+# plt.show()
+
+
+#--------------------------------------BASIC-TRADING-ALGORITHM--------------------------------------#
+
+DATA_THRESHOLD = 7000
+
+# BITCOIN & GS
+BTC_training_data = stock_data["BTC-USD"][DATA_THRESHOLD:8200]
+GS_training_data = stock_data["GS"][DATA_THRESHOLD:8200]
+BTC_test_data = stock_data["BTC-USD"][8201:]
+GS_test_data = stock_data["GS"][8201:]
+
+results = pair_check_log(y=BTC_training_data, x=GS_training_data)
+train_spread = results["residuals"]
+GAMMA = results["coefficients_of_regression"]["GS"]
+
+# AR(1) Model
+
+ar_fit = ARIMA(train_spread, order = (1,0,0)).fit()
+spread_noise_std = np.sqrt(ar_fit.params["sigma2"])
+test_spread = np.log(BTC_test_data) - (GAMMA * np.log(GS_test_data) + results["coefficients_of_regression"]["const"])
+test_index = test_spread.index
+
+# test_index is a pd.Series with indices being pd.Timestamp
+
+
+
+# Calculating conditional expectation
+
+x = np.log(BTC_training_data[-1]) - (GAMMA * np.log(GS_training_data[-1]) + results["coefficients_of_regression"]["const"])
+initial_spread = ar_fit.params['const'] + ar_fit.params['ar.L1'] * (x - ar_fit.params['const'])
+
+spread_cond_mean = [initial_spread]
+
+for i in range(1,len(test_spread)):
+    spread_cond_mean.append(ar_fit.params['const'] + ar_fit.params['ar.L1'] * (test_spread[i-1] - ar_fit.params['const']))
+
+spread_cond_mean = pd.Series(spread_cond_mean, index=test_index, name="spread_cond_mean")
+
+z_score = (test_spread-spread_cond_mean)/spread_noise_std
+
+
+# plt.plot(z_score)
+# plt.show()
+
+# print(z_score.mean())
+# Question, Shouldn't mean be almost 0? I get -0.051644727794340914
+
+#-----------Trading Algo----------#
+INITIAL_BUDGET = 10**6
+
+
+pt = PairsTrade(initial_budget=INITIAL_BUDGET, upper_thr= 1.5 , upper_unwind_thr=0.2, gamma= GAMMA)
+
+# print(BTC_test_data)
+# print(GS_test_data)
+# print(f"the z-score data is the folloiwng {z_score} \n next \n")
+
+for day in z_score.index:
+    if pt.status == 0:
+        if z_score[day] > pt.upper_thr:
+            pt.short_the_spread(N = 1, curr_stock_price= (BTC_test_data[day], GS_test_data[day]))
+        elif z_score[day] < pt.lower_thr:
+            pt.long_the_spread(N = 1, curr_stock_price= (BTC_test_data[day], GS_test_data[day]))
+    elif pt.status == 1: #That is we longed the spread
+        if z_score[day] > pt.lower_unwind_thr:
+            pt.short_the_spread(N=1, curr_stock_price=(BTC_test_data[day], GS_test_data[day]))
+    elif pt.status == -1: #That is we shorted the spread
+        if z_score[day] < pt.upper_unwind_thr:
+            pt.long_the_spread(N=1, curr_stock_price=(BTC_test_data[day], GS_test_data[day]))
+
+print(pt.pandls(initial_budget=INITIAL_BUDGET))
+
+
+# plt.plot(spread_cond_mean)
+# plt.plot(test_spread)
 # plt.show()

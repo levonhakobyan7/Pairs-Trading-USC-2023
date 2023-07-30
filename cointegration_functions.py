@@ -102,3 +102,40 @@ def pair_check_log(y: pd.Series,x: pd.Series):
             print(f"the log close price for {x.name} stock is stationary")
         return False
 
+# 1. STOCK_0 is the first term of regression
+# 2. Assumptions are made on trading prices
+
+class PairsTrade:
+    def __init__(self, initial_budget, upper_thr, upper_unwind_thr, gamma):
+        self.budget = initial_budget
+        self.stock_0_shares = 0
+        self.stock_1_shares = 0
+        self.upper_thr = upper_thr
+        self.lower_thr = - upper_thr
+        self.upper_unwind_thr = upper_unwind_thr
+        self.lower_unwind_thr = - upper_unwind_thr
+        self.status = 0
+        self.gamma = gamma
+
+    def long_the_spread(self, N: int, curr_stock_price: tuple):
+        self.stock_0_shares += N #BUY N shares of stock_0
+        self.stock_1_shares += (-1) * self.gamma * N #SELL N*gamma shares of stock_1
+        self.budget = self.budget - (N * curr_stock_price[0]) + (N * self.gamma * curr_stock_price[1])
+        self.status += 1
+
+    def short_the_spread(self, N: int, curr_stock_price: tuple):
+        self.stock_0_shares += -N
+        self.stock_1_shares += self.gamma * N
+        self.budget = self.budget - self.gamma * N * curr_stock_price[1] + N * curr_stock_price[0]
+        self.status -= 1
+
+    def parameter_update(self, new_gamma):
+        self.gamma = new_gamma
+
+    def pandls(self, initial_budget):
+        return self.budget - initial_budget
+
+
+
+
+
