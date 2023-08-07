@@ -171,21 +171,29 @@ pt = PairsTrade(initial_budget=INITIAL_BUDGET, upper_thr= 1.5 , upper_unwind_thr
 # print(GS_test_data)
 # print(f"the z-score data is the folloiwng {z_score} \n next \n")
 
+list_1 = []
+list_2 = []
+
 for day in z_score.index:
     if pt.status == 0:
         if z_score[day] > pt.upper_thr:
             pt.short_the_spread(N = 1, curr_stock_price= (BTC_test_data[day], GS_test_data[day]))
+            list_1.append((BTC_test_data[day], GS_test_data[day], "short"))
         elif z_score[day] < pt.lower_thr:
             pt.long_the_spread(N = 1, curr_stock_price= (BTC_test_data[day], GS_test_data[day]))
+            list_1.append((BTC_test_data[day], GS_test_data[day], "long"))
     elif pt.status == 1: #That is we longed the spread
         if z_score[day] > pt.lower_unwind_thr:
             pt.short_the_spread(N=1, curr_stock_price=(BTC_test_data[day], GS_test_data[day]))
+            list_2.append((BTC_test_data[day], GS_test_data[day]))
     elif pt.status == -1: #That is we shorted the spread
         if z_score[day] < pt.upper_unwind_thr:
             pt.long_the_spread(N=1, curr_stock_price=(BTC_test_data[day], GS_test_data[day]))
+            list_2.append((BTC_test_data[day], GS_test_data[day]))
+
 
 print(pt.pandls(initial_budget=INITIAL_BUDGET))
-
+print(f"This is list_1: {list_1} \nThis is list_2: {list_2}")
 
 # plt.plot(spread_cond_mean)
 # plt.plot(test_spread)

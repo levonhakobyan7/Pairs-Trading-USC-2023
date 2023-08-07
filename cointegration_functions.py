@@ -116,18 +116,22 @@ class PairsTrade:
         self.lower_unwind_thr = - upper_unwind_thr
         self.status = 0
         self.gamma = gamma
+        self.counter = 0
 
     def long_the_spread(self, N: int, curr_stock_price: tuple):
         self.stock_0_shares += N #BUY N shares of stock_0
         self.stock_1_shares += (-1) * self.gamma * N #SELL N*gamma shares of stock_1
         self.budget = self.budget - (N * curr_stock_price[0]) + (N * self.gamma * curr_stock_price[1])
         self.status += 1
+        self.counter += 1
+
 
     def short_the_spread(self, N: int, curr_stock_price: tuple):
         self.stock_0_shares += -N
         self.stock_1_shares += self.gamma * N
         self.budget = self.budget - self.gamma * N * curr_stock_price[1] + N * curr_stock_price[0]
         self.status -= 1
+        self.counter += 1
 
     def parameter_update(self, new_gamma):
         self.gamma = new_gamma
